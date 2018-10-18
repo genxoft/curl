@@ -43,6 +43,7 @@ class Curl
     /**
      * Curl constructor.
      * @param Request|string|null $request
+     * @throws \Exception
      */
     public function __construct($request = null)
     {
