@@ -120,6 +120,36 @@ class Curl
     }
 
     /**
+     * @return Response
+     * @throws \Exception
+     */
+    public function put()
+    {
+        $result = $this->_doRequest('PUT');
+        return $result;
+    }
+
+    /**
+     * @return Response
+     * @throws \Exception
+     */
+    public function patch()
+    {
+        $result = $this->_doRequest('PATCH');
+        return $result;
+    }
+
+    /**
+     * @return Response
+     * @throws \Exception
+     */
+    public function delete()
+    {
+        $result = $this->_doRequest('DELETE');
+        return $result;
+    }
+
+    /**
      * @param string $method
      * @return Response|null
      * @throws \Exception
