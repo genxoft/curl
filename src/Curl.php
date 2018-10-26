@@ -9,21 +9,23 @@
  *
  */
 
-namespace genxter\curl;
+namespace genxoft\curl;
 
 
 class Curl
 {
     /**
      * @var Request
+     * request
      */
     protected $_request;
 
     /**
      * @var array
+     * Default options php-curl
      */
     protected $_options = [
-        CURLOPT_USERAGENT       => 'genxter-php-curl',
+        CURLOPT_USERAGENT       => 'genxoft-php-curl-wrapper',
         CURLOPT_TIMEOUT         => 60,
         CURLOPT_CONNECTTIMEOUT   => 60,
         CURLOPT_RETURNTRANSFER   => true,
@@ -32,17 +34,19 @@ class Curl
 
     /**
      * @var int
+     * Last php-curl error number
      */
     protected $_lastCurlError;
 
     /**
      * @var string
+     * Last php-curl error message
      */
     protected $_lastCurlErrorStr;
 
     /**
      * Curl constructor.
-     * @param Request|string|null $request
+     * @param Request|string|null $request Request object, URL string
      * @throws \Exception
      */
     public function __construct($request = null)
@@ -52,13 +56,12 @@ class Curl
                 $this->_request = $request;
             } else if (is_string($request)) {
                 $this->_request = new Request($request);
-            } else {
-                throw new \InvalidArgumentException("Invalid argument type.");
             }
         }
     }
 
     /**
+     * Set php-curl option
      * @param int $key
      * @param mixed $val
      */
@@ -67,6 +70,7 @@ class Curl
     }
 
     /**
+     * Unset php-curl option
      * @param int $key
      */
     public function unsetCurlOption ($key) {
@@ -74,15 +78,17 @@ class Curl
     }
 
     /**
+     * Set Request object
      * @param Request $request
      */
     public function setRequest ($request) {
-        if ($request instanceof Request) {
+        if ($request instanceof Request)
             throw new \InvalidArgumentException("Invalid request type.");
-        }
+        $this->_request = $request;
     }
 
     /**
+     * Get Request object
      * @return Request
      */
     public function getRequest () {
@@ -90,6 +96,23 @@ class Curl
     }
 
     /**
+     * Get last php-curl error message
+     * @return string
+     */
+    public function getLastError () {
+        return $this->_lastCurlErrorStr;
+    }
+
+    /**
+     * Get last php-curl error number
+     * @return int
+     */
+    public function getLastErrno () {
+        return $this->_lastCurlError;
+    }
+
+    /**
+     * Performing curl request with method GET
      * @return Response
      * @throws \Exception
      */
@@ -100,6 +123,7 @@ class Curl
     }
 
     /**
+     * Performing curl request with method POST
      * @return Response
      * @throws \Exception
      */
@@ -110,6 +134,7 @@ class Curl
     }
 
     /**
+     * Performing curl request with method HEAD
      * @return Response
      * @throws \Exception
      */
@@ -120,6 +145,7 @@ class Curl
     }
 
     /**
+     * Performing curl request with method PUT
      * @return Response
      * @throws \Exception
      */
@@ -130,6 +156,7 @@ class Curl
     }
 
     /**
+     * Performing curl request with method PATCH
      * @return Response
      * @throws \Exception
      */
@@ -140,6 +167,7 @@ class Curl
     }
 
     /**
+     * Performing curl request with method DELETE
      * @return Response
      * @throws \Exception
      */
@@ -150,8 +178,9 @@ class Curl
     }
 
     /**
-     * @param string $method
-     * @return Response|null
+     * Performing curl request
+     * @param string $method HTTP method (GET, POST, HEAD, PUT, PATCH, DELETE)
+     * @return Response|null Returns Response object. Returns null if curl error
      * @throws \Exception
      * @internal
      */
@@ -195,4 +224,63 @@ class Curl
         return new Response($responseBody, $responseHeaders);
     }
 
+    /**
+     * Performing quick http request with method GET
+     * @param string $url URL string
+     * @param array $params HTTP query params (name => value)
+     * @return string
+     * @throws \Exception
+     */
+    static function quickGet($url, $params)
+    {
+        $curl = new static(new Request($url, $params));
+        $response = $curl->get();
+        if ($response === null)
+            throw new \Exception("Curl error: ". $curl->getLastError());
+
+        if (!$response->isSuccess())
+            throw new \Exception("HTTP Error: ". $response->getStatusMessage());
+
+        return $response->getBody();
+    }
+
+    /**
+     * Performing quick http request with method POST
+     * @param string $url URL string
+     * @param array $params HTTP body params (name => value)
+     * @return string
+     * @throws \Exception
+     */
+    static function quickPost($url, $params)
+    {
+        $curl = new static(new Request($url, $params, 'POST'));
+        $response = $curl->post();
+        if ($response === null)
+            throw new \Exception("Curl error: ". $curl->getLastError());
+
+        if (!$response->isSuccess())
+            throw new \Exception("HTTP Error: ". $response->getStatusMessage());
+
+        return $response->getBody();
+    }
+
+    /**
+     * Performing quick http request with method POST and params in body with json encoding
+     * @param string $url URL string
+     * @param array $params Json params (name => value)
+     * @return string
+     * @throws \Exception
+     */
+    static function quickJson($url, $params)
+    {
+        $curl = new static(new Request($url, $params, 'POST'));
+        $response = $curl->post();
+        if ($response === null)
+            throw new \Exception("Curl error: ". $curl->getLastError());
+
+        if (!$response->isSuccess())
+            throw new \Exception("HTTP Error: ". $response->getStatusMessage());
+
+        return $response->getBody();
+    }
 }

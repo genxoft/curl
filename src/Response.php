@@ -9,60 +9,68 @@
  *
  */
 
-namespace genxter\curl;
+namespace genxoft\curl;
 
 class Response
 {
 
     /**
+     * HTTP protocol version
      * @var string
      */
     protected $_httpVersion;
 
     /**
+     * HTTP status code
      * @var int
      */
     protected $_httpStatus;
 
     /**
+     * HTTP status reason message
      * @var string
      */
     protected $_httpReason;
 
     /**
-     * @var array
+     * Response headers
+     * @var string[]
      */
     protected $_headers;
 
     /**
+     * Response body
      * @var string
      */
     protected $_textBody;
 
     /**
+     * Response raw header
      * @var null|string
      */
-    protected $_raw_headers;
+    protected $_raw_header;
 
     /**
+     * Response raw body
      * @var null|string
      */
     protected $_raw_body;
 
     /**
      * Response constructor.
-     * @param string $_raw_body
-     * @param string|null $_raw_headers
+     * @param string $_raw_body raw body
+     * @param string|null $_raw_header raw header
      */
-    public function __construct($_raw_body, $_raw_headers = null)
+    public function __construct($_raw_body, $_raw_header = null)
     {
         $this->_raw_body = $_raw_body;
-        if ($_raw_headers !== null) $this->_raw_headers = $_raw_headers;
+        if ($_raw_header !== null) $this->_raw_header = $_raw_header;
         $this->_parseHeaders();
         $this->_parseBody();
     }
 
     /**
+     * Get HTTP status numeric code (200, 404, 301, etc.)
      * @return int
      */
     public function getStatus ()
@@ -70,26 +78,61 @@ class Response
         return $this->_httpStatus;
     }
 
+    /**
+     * Get HTTP status message
+     * @return int
+     */
+    public function getStatusMessage ()
+    {
+        return $this->_httpReason;
+    }
+
+    /**
+     * Returns true if HTTP status is 2**
+     * @return boolean
+     */
+    public function isSuccess ()
+    {
+        return substr((string)$this->_httpStatus, 0, 1) === "2";
+    }
+
+    /**
+     * Get raw body as string
+     * @return string
+     */
     public function getBody ()
     {
         return $this->_textBody;
     }
 
+    /**
+     * Get headers as array
+     * @return array (name => value)
+     */
     public function getHeaders ()
     {
         return $this->_headers;
     }
 
-    public function getHeader ($key)
+    /**
+     * Get header by name
+     * @param string $name header param name
+     * @return string
+     */
+    public function getHeader ($name)
     {
-        if (!array_key_exists($key, $this->_headers)) return null;
-        return $this->_headers[$key];
+        if (!array_key_exists($name, $this->_headers)) return null;
+        return $this->_headers[$name];
 
     }
 
+    /**
+     * headers parser
+     * @internal
+     */
     private function _parseHeaders()
     {
-        $_headers = explode("\r\n", $this->_raw_headers);
+        $_headers = explode("\r\n", $this->_raw_header);
         $_status_line = array_shift($_headers);
         $status = explode(" ", $_status_line);
         if (array_key_exists(0, $status)) $this->_httpVersion = $status[0];
@@ -102,6 +145,10 @@ class Response
         }
     }
 
+    /**
+     * body parser
+     * @internal
+     */
     private function _parseBody()
     {
         $this->_textBody = $this->_raw_body;

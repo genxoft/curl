@@ -18,5 +18,8 @@
         "psr-4": {
             "genxoft\\curl\\": "src/"
         }
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.5"
     }
 }
