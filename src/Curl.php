@@ -273,7 +273,7 @@ class Curl
      */
     static function quickJson($url, $params)
     {
-        $curl = new static(new Request($url, $params, 'POST'));
+        $curl = new static(new Request($url, $params, 'JSON'));
         $response = $curl->post();
         if ($response === null)
             throw new \Exception("Curl error: ". $curl->getLastError());

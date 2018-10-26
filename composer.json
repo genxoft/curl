@@ -7,10 +7,12 @@
     "authors": [
         {
             "name": "Simon Rodin",
+            "homepage": "http://rodin.red/",
             "email": "master@genx.ru"
         }
     ],
     "require": {
+        "php": ">=5.4.0",
         "ext-json": "*",
         "ext-curl": "*"
     },
