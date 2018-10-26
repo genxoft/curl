@@ -1,0 +1,22 @@
+{
+    "name": "genxoft/curl",
+    "description": "Simple php cURL extension with RESTful support",
+    "type": "library",
+    "keywords": ["curl","php-curl","rest", "restfull", "json"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Simon Rodin",
+            "email": "master@genx.ru"
+        }
+    ],
+    "require": {
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "genxoft\\curl\\": "src/"
+        }
+    }
+}
