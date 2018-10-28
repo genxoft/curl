@@ -73,4 +73,28 @@ class CurlTest extends \Codeception\Test\Unit
 
         $this->assertEquals($response->getBody(), "test_value");
     }
+
+    public function testQuickGetRequest()
+    {
+        $result = \genxoft\curl\Curl::quickGet("http://localhost/libs/curl/tests/test_get.php", [
+            "test_param" => "test_value"
+        ]);
+        $this->assertEquals($result, "test_value");
+    }
+
+    public function testQuickPostRequest()
+    {
+        $result = \genxoft\curl\Curl::quickPost("http://localhost/libs/curl/tests/test_post.php", [
+            "test_param" => "test_value"
+        ]);
+        $this->assertEquals($result, "test_value");
+    }
+
+    public function testQuickJsonRequest()
+    {
+        $result = \genxoft\curl\Curl::quickJson("http://localhost/libs/curl/tests/test_json.php", [
+            "test_param" => "test_value"
+        ]);
+        $this->assertEquals($result, "test_value");
+    }
 }
