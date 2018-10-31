@@ -21,7 +21,7 @@ Quick usage
 
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
-use genxoft\curl;
+use genxoft\curl\Curl;
 
 $result = Curl::QuickGet("http://example.com", ["text_param" => "text_value"]);
 
@@ -38,7 +38,8 @@ Performing post request with Json data and query params
 
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
-use genxoft\curl;
+use genxoft\curl\Curl;
+use genxoft\curl\Request;
 
 $request = new Request("http://example.com");
 $request->addGetParam("action", "save")
