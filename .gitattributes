@@ -1,0 +1,3 @@
+﻿/.gitattributes export-ignore
+/tests export-ignore
+/codeception.yml export-ignore

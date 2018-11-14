@@ -14,6 +14,21 @@ Requirements
  - PHP 5.4+
  - curl php extension 
 
+Installation
+------------
+
+The preferred way to install this wrapper is through [composer](http://getcomposer.org/download/).
+
+```bash
+php composer.phar require genxoft/curl "*"
+```
+
+or
+
+```bash
+composer require genxoft/curl "*"
+```
+
 Quick usage
 -----------
 
