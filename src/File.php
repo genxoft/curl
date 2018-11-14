@@ -4,7 +4,6 @@
  *
  * @author    Simon Rodin <master@genx.ru>
  * @license   http://opensource.org/licenses/MIT MIT Public
- * @version   1.0
  * @link      https://github.com/genxoft/curl
  *
  */
@@ -12,22 +11,55 @@
 
 namespace genxoft\curl;
 
-
 class File
 {
 
+    /**
+     * File name
+     * @var string
+     */
     public $name;
+
+    /**
+     * File MIME type
+     * @var string
+     */
     public $mime = "application/octet-stream";
 
+    /**
+     * File path
+     * @var
+     */
     protected $_filePath;
+
+    /**
+     * File size
+     * @var
+     */
     protected $_size;
+
+    /**
+     * File content
+     * @var
+     */
     protected $_fileData;
 
+    /**
+     * File constructor.
+     */
     public function __construct()
     {
 
     }
 
+    /**
+     * Load file from filesystem
+     * @param string $filePath path to file
+     * @param string|null $fileName file name or NULL if you want to use original file name
+     * @param string|null $mimeType file MIME type or NULL if you want to use autodetect MIME type
+     * @return static
+     * @throws \Exception
+     */
     static function loadFile($filePath, $fileName = null, $mimeType = null)
     {
         $fileRealPath = realpath($filePath);
@@ -52,6 +84,10 @@ class File
         return $file;
     }
 
+    /**
+     * File content getter
+     * @return string
+     */
     public function getFileData() {
         return $this->_fileData;
     }

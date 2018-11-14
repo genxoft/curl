@@ -4,7 +4,6 @@
  *
  * @author    Simon Rodin <master@genx.ru>
  * @license   http://opensource.org/licenses/MIT MIT Public
- * @version   1.0
  * @link      https://github.com/genxoft/curl
  *
  */
@@ -98,8 +97,7 @@ class Request
                     break;
             }
         }
-        $this->_boundary = '-----------------------------215672773019479';
-        //$this->_boundary = '-----------------------------'.mt_rand(pow(10, 9), pow(10, 10) - 1);
+        $this->_boundary = str_repeat('-', 28).mt_rand(pow(10, 14), pow(10, 15) - 1);
 
     }
 
@@ -278,6 +276,7 @@ class Request
 
     /**
      * @param resource $curl
+     * @throws \Exception
      */
     public function buildRequest(&$curl)
     {
@@ -339,6 +338,10 @@ class Request
         }
     }
 
+    /**
+     * Prepare part for multipart request
+     * @internal
+     */
     protected static function _getPart($name, $value, $boundary)
     {
         $part = '--'.$boundary."\r\n";
