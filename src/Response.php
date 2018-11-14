@@ -4,7 +4,6 @@
  *
  * @author    Simon Rodin <master@genx.ru>
  * @license   http://opensource.org/licenses/MIT MIT Public
- * @version   1.0
  * @link      https://github.com/genxoft/curl
  *
  */

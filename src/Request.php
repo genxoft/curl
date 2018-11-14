@@ -4,7 +4,6 @@
  *
  * @author    Simon Rodin <master@genx.ru>
  * @license   http://opensource.org/licenses/MIT MIT Public
- * @version   1.0
  * @link      https://github.com/genxoft/curl
  *
  */
@@ -13,6 +12,10 @@ namespace genxoft\curl;
 
 class Request
 {
+
+    const ENCTYPE_X_FORM = "application/x-www-form-urlencoded";
+    const ENCTYPE_MULTIPART = "multipart/form-data";
+    const ENCTYPE_TEXT = "text/plain";
 
     /**
      * @var string
@@ -45,11 +48,23 @@ class Request
     protected $_body;
 
     /**
-     * @var array
+     * @var File[]
      * files for upload
      */
     protected $_files;
 
+    /**
+     * @var string
+     * Request enctype
+     */
+    protected $_enctype = self::ENCTYPE_X_FORM;
+
+
+    /**
+     * @var string
+     * Body parts delimiter
+     */
+    protected $_boundary = "-----------------------------0123456789";
     /**
      * Request constructor.
      * @param string $url
@@ -58,6 +73,7 @@ class Request
      * @throws \InvalidArgumentException
      * @throws \Exception
      */
+
     public function __construct($url, $params = null, $paramsType = 'GET')
     {
         if (!filter_var($url, FILTER_VALIDATE_URL))
@@ -81,6 +97,7 @@ class Request
                     break;
             }
         }
+        $this->_boundary = str_repeat('-', 28).mt_rand(pow(10, 14), pow(10, 15) - 1);
 
     }
 
@@ -200,7 +217,11 @@ class Request
     {
         if (array_key_exists($name, $this->_postParams) && !$replace)
             throw new \Exception("Post param $name already exists");
-        $this->_postParams[$name] = $val;
+        if ($val instanceof File) {
+            $this->_files[$name] = $val;
+        } else {
+            $this->_postParams[$name] = $val;
+        }
         return $this;
     }
 
@@ -255,6 +276,7 @@ class Request
 
     /**
      * @param resource $curl
+     * @throws \Exception
      */
     public function buildRequest(&$curl)
     {
@@ -266,10 +288,18 @@ class Request
             }
         }
 
-        if (!empty($this->_body))
+        $this->_encryptBody();
+
+        if (!empty($this->_body)) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, $this->_body);
-        else if (!empty($this->_postParams))
-            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($this->_postParams));
+            curl_setopt($curl, CURLOPT_POST, 1);
+            if ($this->_enctype === self::ENCTYPE_MULTIPART) {
+                $this->addHeaders([
+                    'Content-Type' => 'multipart/form-data; boundary=' . $this->_boundary,
+                    'Content-Length' => strlen($this->_body),
+                ], true);
+            }
+        }
 
         if (!empty($this->_headers)) {
             $parsedHeader = [];
@@ -280,5 +310,53 @@ class Request
         }
 
         curl_setopt($curl, CURLOPT_URL, $this->_url);
+    }
+
+    /**
+     * Prepare body for POST request
+     * @internal
+     */
+    protected function _encryptBody()
+    {
+        if (!empty($this->_body)) return;
+
+        if (!empty($this->_postParams) && empty($this->_files)) {
+            $this->_body = http_build_query($this->_postParams);
+            $this->_enctype = self::ENCTYPE_X_FORM;
+            return;
+        }
+
+        if (!empty($this->_files)) {
+            $this->_enctype = self::ENCTYPE_MULTIPART;
+            foreach ($this->_postParams as $name => $val) {
+                $this->_body .= static::_getPart($name, $val, $this->_boundary);
+            }
+            foreach ($this->_files as $name => $file) {
+                $this->_body .= static::_getPart($name, $file, $this->_boundary);
+            }
+            $this->_body .= '--'.$this->_boundary."--\r\n";
+        }
+    }
+
+    /**
+     * Prepare part for multipart request
+     * @internal
+     */
+    protected static function _getPart($name, $value, $boundary)
+    {
+        $part = '--'.$boundary."\r\n";
+        if ($value instanceof File) {
+            $part .= "Content-Disposition: form-data; name=\"$name\"; filename=\"{$value->name}\"\r\n";
+            $part .= "Content-Type: {$value->mime}";
+            $part .= "\r\n\r\n";
+            $part .= $value->getFileData();
+            $part .= "\r\n";
+        } else {
+            $part .= "Content-Disposition: form-data; name=\"$name\"";
+            $part .= "\r\n\r\n";
+            $part .= urlencode($value);
+            $part .= "\r\n";
+        }
+        return $part;
     }
 }
